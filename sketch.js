@@ -35,23 +35,23 @@ function draw() {
     for (let hand of hands) {
       if (hand.confidence > 0.1) {
         // Draw lines connecting specific keypoints
-        drawKeypointLines(hand.keypoints, [0, 1, 2, 3, 4]);  // Thumb
-        drawKeypointLines(hand.keypoints, [5, 6, 7, 8]);     // Index finger
-        drawKeypointLines(hand.keypoints, [9, 10, 11, 12]);  // Middle finger
-        drawKeypointLines(hand.keypoints, [13, 14, 15, 16]); // Ring finger
-        drawKeypointLines(hand.keypoints, [17, 18, 19, 20]); // Pinky
+        connectKeypoints(hand.keypoints, [0, 1, 2, 3, 4]);  // Thumb
+        connectKeypoints(hand.keypoints, [5, 6, 7, 8]);     // Index finger
+        connectKeypoints(hand.keypoints, [9, 10, 11, 12]);  // Middle finger
+        connectKeypoints(hand.keypoints, [13, 14, 15, 16]); // Ring finger
+        connectKeypoints(hand.keypoints, [17, 18, 19, 20]); // Pinky
       }
     }
   }
 }
 
-// Helper function to draw lines between keypoints
-function drawKeypointLines(keypoints, indices) {
-  for (let i = 0; i < indices.length - 1; i++) {
-    let start = keypoints[indices[i]];
-    let end = keypoints[indices[i + 1]];
-    stroke(0, 255, 0); // Green color for lines
-    strokeWeight(2);
-    line(start.x, start.y, end.x, end.y);
+// Helper function to connect keypoints with lines
+function connectKeypoints(keypoints, indices) {
+  beginShape();
+  noFill();
+  for (let i of indices) {
+    let point = keypoints[i];
+    vertex(point.x, point.y);
   }
+  endShape();
 }
