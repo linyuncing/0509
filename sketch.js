@@ -34,21 +34,24 @@ function draw() {
   if (hands.length > 0) {
     for (let hand of hands) {
       if (hand.confidence > 0.1) {
-        // Loop through keypoints and draw circles
-        for (let i = 0; i < hand.keypoints.length; i++) {
-          let keypoint = hand.keypoints[i];
-
-          // Color-code based on left or right hand
-          if (hand.handedness == "Left") {
-            fill(255, 0, 255);
-          } else {
-            fill(255, 255, 0);
-          }
-
-          noStroke();
-          circle(keypoint.x, keypoint.y, 16);
-        }
+        // Draw lines connecting specific keypoints
+        drawKeypointLines(hand.keypoints, [0, 1, 2, 3, 4]);  // Thumb
+        drawKeypointLines(hand.keypoints, [5, 6, 7, 8]);     // Index finger
+        drawKeypointLines(hand.keypoints, [9, 10, 11, 12]);  // Middle finger
+        drawKeypointLines(hand.keypoints, [13, 14, 15, 16]); // Ring finger
+        drawKeypointLines(hand.keypoints, [17, 18, 19, 20]); // Pinky
       }
     }
+  }
+}
+
+// Helper function to draw lines between keypoints
+function drawKeypointLines(keypoints, indices) {
+  for (let i = 0; i < indices.length - 1; i++) {
+    let start = keypoints[indices[i]];
+    let end = keypoints[indices[i + 1]];
+    stroke(0, 255, 0); // Green color for lines
+    strokeWeight(2);
+    line(start.x, start.y, end.x, end.y);
   }
 }
