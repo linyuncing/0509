@@ -54,24 +54,28 @@ function draw() {
           circleY = indexFinger.y;
         }
 
+        // Determine hand color based on handedness
+        let handColor = hand.handedness === 'Left' ? '#8338ec' : '#ff006e';
+
         // Draw lines connecting specific keypoints
-        connectKeypoints(hand.keypoints, [0, 1, 2, 3, 4]);  // Thumb
-        connectKeypoints(hand.keypoints, [5, 6, 7, 8]);     // Index finger
-        connectKeypoints(hand.keypoints, [9, 10, 11, 12]);  // Middle finger
-        connectKeypoints(hand.keypoints, [13, 14, 15, 16]); // Ring finger
-        connectKeypoints(hand.keypoints, [17, 18, 19, 20]); // Pinky
+        connectKeypoints(hand.keypoints, [0, 1, 2, 3, 4], handColor);  // Thumb
+        connectKeypoints(hand.keypoints, [5, 6, 7, 8], handColor);     // Index finger
+        connectKeypoints(hand.keypoints, [9, 10, 11, 12], handColor);  // Middle finger
+        connectKeypoints(hand.keypoints, [13, 14, 15, 16], handColor); // Ring finger
+        connectKeypoints(hand.keypoints, [17, 18, 19, 20], handColor); // Pinky
       }
     }
   }
 }
 
 // Helper function to connect keypoints with lines
-function connectKeypoints(keypoints, indices) {
-  beginShape();
+function connectKeypoints(keypoints, indices, color) {
+  stroke(color);       // Set the stroke color
+  strokeWeight(5);     // Set the stroke weight to 5
   noFill();
-  for (let i of indices) {
-    let point = keypoints[i];
-    vertex(point.x, point.y);
+  for (let i = 0; i < indices.length - 1; i++) {
+    let start = keypoints[indices[i]];
+    let end = keypoints[indices[i + 1]];
+    line(start.x, start.y, end.x, end.y);
   }
-  endShape();
 }
