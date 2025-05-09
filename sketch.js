@@ -5,6 +5,10 @@ let video;
 let handPose;
 let hands = [];
 
+let circleX = 320; // Initial X position of the circle
+let circleY = 240; // Initial Y position of the circle
+const circleRadius = 50; // Radius of the circle
+
 function preload() {
   // Initialize HandPose model with flipped video input
   handPose = ml5.handPose({ flipped: true });
@@ -30,10 +34,26 @@ function setup() {
 function draw() {
   image(video, 0, 0);
 
+  // Draw the circle
+  fill('#3a86ff');
+  noStroke();
+  ellipse(circleX, circleY, circleRadius * 2);
+
   // Ensure at least one hand is detected
   if (hands.length > 0) {
     for (let hand of hands) {
       if (hand.confidence > 0.1) {
+        // Get the position of the index finger tip (keypoint 8)
+        let indexFinger = hand.keypoints[8];
+
+        // Check if the index finger is touching the circle
+        let d = dist(indexFinger.x, indexFinger.y, circleX, circleY);
+        if (d < circleRadius) {
+          // Move the circle to the index finger's position
+          circleX = indexFinger.x;
+          circleY = indexFinger.y;
+        }
+
         // Draw lines connecting specific keypoints
         connectKeypoints(hand.keypoints, [0, 1, 2, 3, 4]);  // Thumb
         connectKeypoints(hand.keypoints, [5, 6, 7, 8]);     // Index finger
