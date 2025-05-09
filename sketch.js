@@ -9,6 +9,9 @@ let circleX = 320; // Initial X position of the circle
 let circleY = 240; // Initial Y position of the circle
 const circleRadius = 50; // Radius of the circle
 
+let isDragging = false; // Flag to track if the circle is being dragged
+let previousX, previousY; // Previous position of the circle
+
 function preload() {
   // Initialize HandPose model with flipped video input
   handPose = ml5.handPose({ flipped: true });
@@ -27,6 +30,10 @@ function setup() {
   video = createCapture(VIDEO, { flipped: true });
   video.hide();
 
+  // Initialize previous position
+  previousX = circleX;
+  previousY = circleY;
+
   // Start detecting hands
   handPose.detectStart(video, gotHands);
 }
@@ -39,8 +46,18 @@ function draw() {
   noStroke();
   ellipse(circleX, circleY, circleRadius * 2);
 
+  // Draw the trajectory if the circle is being dragged
+  if (isDragging) {
+    stroke('#90e0ef');
+    strokeWeight(2);
+    line(previousX, previousY, circleX, circleY);
+    previousX = circleX;
+    previousY = circleY;
+  }
+
   // Ensure at least one hand is detected
   if (hands.length > 0) {
+    isDragging = false; // Reset dragging flag
     for (let hand of hands) {
       if (hand.confidence > 0.1) {
         // Get the positions of the index finger tip (keypoint 8) and thumb tip (keypoint 4)
@@ -55,6 +72,7 @@ function draw() {
           // Move the circle to the midpoint between the index finger and thumb
           circleX = (indexFinger.x + thumb.x) / 2;
           circleY = (indexFinger.y + thumb.y) / 2;
+          isDragging = true; // Set dragging flag
         }
 
         // Determine hand color based on handedness
