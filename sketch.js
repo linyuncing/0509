@@ -12,6 +12,9 @@ const circleRadius = 50; // Radius of the circle
 let isDragging = false; // Flag to track if the circle is being dragged
 let previousX, previousY; // Previous position of the circle
 
+let isDraggingThumb = false; // Flag to track if the circle is being dragged by the thumb
+let previousThumbX, previousThumbY; // Previous position of the circle when dragged by the thumb
+
 function preload() {
   // Initialize HandPose model with flipped video input
   handPose = ml5.handPose({ flipped: true });
@@ -30,9 +33,11 @@ function setup() {
   video = createCapture(VIDEO, { flipped: true });
   video.hide();
 
-  // Initialize previous position
+  // Initialize previous positions
   previousX = circleX;
   previousY = circleY;
+  previousThumbX = circleX;
+  previousThumbY = circleY;
 
   // Start detecting hands
   handPose.detectStart(video, gotHands);
@@ -46,7 +51,7 @@ function draw() {
   noStroke();
   ellipse(circleX, circleY, circleRadius * 2);
 
-  // Draw the trajectory if the circle is being dragged
+  // Draw the trajectory if the circle is being dragged by the index finger
   if (isDragging) {
     stroke('#90e0ef');
     strokeWeight(2);
@@ -55,9 +60,19 @@ function draw() {
     previousY = circleY;
   }
 
+  // Draw the trajectory if the circle is being dragged by the thumb
+  if (isDraggingThumb) {
+    stroke('#a2d2ff');
+    strokeWeight(2);
+    line(previousThumbX, previousThumbY, circleX, circleY);
+    previousThumbX = circleX;
+    previousThumbY = circleY;
+  }
+
   // Ensure at least one hand is detected
   if (hands.length > 0) {
-    isDragging = false; // Reset dragging flag
+    isDragging = false; // Reset dragging flag for index finger
+    isDraggingThumb = false; // Reset dragging flag for thumb
     for (let hand of hands) {
       if (hand.confidence > 0.1) {
         // Get the positions of the index finger tip (keypoint 8) and thumb tip (keypoint 4)
@@ -68,11 +83,18 @@ function draw() {
         let dIndex = dist(indexFinger.x, indexFinger.y, circleX, circleY);
         let dThumb = dist(thumb.x, thumb.y, circleX, circleY);
 
-        if (dIndex < circleRadius && dThumb < circleRadius) {
-          // Move the circle to the midpoint between the index finger and thumb
-          circleX = (indexFinger.x + thumb.x) / 2;
-          circleY = (indexFinger.y + thumb.y) / 2;
-          isDragging = true; // Set dragging flag
+        if (dIndex < circleRadius) {
+          // Move the circle to the index finger's position
+          circleX = indexFinger.x;
+          circleY = indexFinger.y;
+          isDragging = true; // Set dragging flag for index finger
+        }
+
+        if (dThumb < circleRadius) {
+          // Move the circle to the thumb's position
+          circleX = thumb.x;
+          circleY = thumb.y;
+          isDraggingThumb = true; // Set dragging flag for thumb
         }
 
         // Determine hand color based on handedness
